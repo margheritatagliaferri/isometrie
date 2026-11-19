@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Isola delle Isometrie - Classe 5ª Primaria</title>
+    <!-- Tailwind CSS per un design moderno, responsivo e pulito -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font divertente e leggibile per bambini -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js per effetti sonori generati via codice (nessun file esterno) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #fef08a 100%);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        h1, h2, h3, .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Stile personalizzato per i pulsanti tattili adatti a Chromebook/Touch */
+        .btn-game {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-game:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-game:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* Animazione per il feedback positivo */
+        @keyframes bounce-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: bounce-in 0.4s ease-out forwards;
+        }
+        canvas {
+            touch-action: none; /* Previene lo scorrimento della pagina quando si tocca la griglia */
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- INTESTAZIONE / BARRA SUPERIORE -->
+    <header class="bg-white/90 backdrop-blur-md shadow-md px-4 py-3 sticky top-0 z-20 border-b-4 border-sky-400">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <div class="bg-sky-500 text-white p-2 rounded-2xl shadow-inner text-2xl">📐</div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-sky-700 leading-tight">L'Isola delle Isometrie</h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-bold">Classe 5ª Primaria • Geometria in movimento</p>
+                </div>
+            </div>
+
+            <!-- Indicatori di progresso e punteggio -->
+            <div id="hud-panel" class="hidden flex items-center gap-3 sm:gap-5">
+                <div class="bg-amber-100 border-2 border-amber-400 px-3 py-1 rounded-xl flex items-center gap-2">
+                    <span class="text-xl">⭐</span>
+                    <div>
+                        <span class="text-xs text-amber-800 block font-bold uppercase">Punti</span>
+                        <span id="score-display" class="font-title font-bold text-lg text-amber-600">0</span>
+                    </div>
+                </div>
+                <div class="bg-emerald-100 border-2 border-emerald-400 px-3 py-1 rounded-xl flex items-center gap-2">
+                    <span class="text-xl">🎯</span>
+                    <div>
+                        <span class="text-xs text-emerald-800 block font-bold uppercase">Livello</span>
+                        <span id="level-display" class="font-title font-bold text-lg text-emerald-600">1 / 9</span>
+                    </div>
+                </div>
+                <button onclick="returnToMenu()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm transition">
+                    🏠 Menu
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6">
+        
+        <!-- SCHERMATA 1: MENU INIZIALE / SCELTA MISSIONE -->
+        <section id="menu-screen" class="max-w-4xl w-full bg-white/95 rounded-3xl shadow-xl p-6 sm:p-10 border-4 border-white text-center animate-pop">
+            <div class="inline-block bg-sky-100 text-sky-700 font-bold px-4 py-1 rounded-full text-sm mb-3">
+                Benvenuti esploratori della geometria! 🧭
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">Scegli la tua Missione</h2>
+            <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto mb-8">
+                Le <strong>isometrie</strong> sono movimenti che spostano le figure senza cambiare la loro forma e la loro grandezza. Mettiti alla prova!
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <!-- Card Simmetria -->
+                <div onclick="startMission('simmetria')" class="cursor-pointer group bg-gradient-to-b from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 border-4 border-pink-300 rounded-3xl p-6 transition transform hover:-translate-y-1 shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="text-5xl mb-3 group-hover:scale-110 transition">🦋</div>
+                        <h3 class="text-2xl font-bold text-pink-700 mb-2">1. Simmetria</h3>
+                        <p class="text-sm text-pink-900/80 mb-4">
+                            Rifletti la figura dall'altra parte dello specchio! Conta bene i quadretti dall'asse di simmetria.
+                        </p>
+                    </div>
+                    <span class="btn-game bg-pink-500 text-white font-bold py-2.5 px-4 rounded-2xl block">Gioca ora ▶</span>
+                </div>
+
+                <!-- Card Traslazione -->
+                <div onclick="startMission('traslazione')" class="cursor-pointer group bg-gradient-to-b from-sky-50 to-sky-100 hover:from-sky-100 hover:to-sky-200 border-4 border-sky-300 rounded-3xl p-6 transition transform hover:-translate-y-1 shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="text-5xl mb-3 group-hover:scale-110 transition">🚀</div>
+                        <h3 class="text-2xl font-bold text-sky-700 mb-2">2. Traslazione</h3>
+                        <p class="text-sm text-sky-900/80 mb-4">
+                            Fai scivolare la figura sulla griglia seguendo le frecce e i passi del vettore!
+                        </p>
+                    </div>
+                    <span class="btn-game bg-sky-500 text-white font-bold py-2.5 px-4 rounded-2xl block">Gioca ora ▶</span>
+                </div>
+
+                <!-- Card Rotazione -->
+                <div onclick="startMission('rotazione')" class="cursor-pointer group bg-gradient-to-b from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 border-4 border-amber-300 rounded-3xl p-6 transition transform hover:-translate-y-1 shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="text-5xl mb-3 group-hover:scale-110 transition">🎡</div>
+                        <h3 class="text-2xl font-bold text-amber-700 mb-2">3. Rotazione</h3>
+                        <p class="text-sm text-amber-900/80 mb-4">
+                            Fai girare la figura intorno al perno rosso di 90° o 180°, in senso orario o antiorario!
+                        </p>
+                    </div>
+                    <span class="btn-game bg-amber-500 text-white font-bold py-2.5 px-4 rounded-2xl block">Gioca ora ▶</span>
+                </div>
+            </div>
+
+            <!-- Pulsante Avventura Completa -->
+            <button onclick="startMission('all')" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white font-title text-xl font-bold py-4 px-8 rounded-2xl shadow-lg inline-flex items-center gap-3">
+                <span>🏆</span> Avventura Completa (Tutte e 3 le sfide!)
+            </button>
+        </section>
+
+        <!-- SCHERMATA 2: AREA DI GIOCO -->
+        <section id="game-screen" class="hidden max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            
+            <!-- Colonna Sinistra: Griglia Interattiva (Canvas) -->
+            <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl p-3 sm:p-5 border-4 border-sky-200 flex flex-col items-center">
+                <div class="w-full flex justify-between items-center mb-2 px-1">
+                    <span id="mission-badge" class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider bg-pink-100 text-pink-700">
+                        Missione Simmetria
+                    </span>
+                    <span class="text-xs sm:text-sm font-bold text-slate-400">
+                        Tocca o clicca sui nodi della griglia
+                    </span>
+                </div>
+
+                <!-- Contenitore responsivo per il Canvas -->
+                <div id="canvas-wrapper" class="w-full aspect-square max-w-[520px] relative bg-slate-50 rounded-2xl border-2 border-slate-300 overflow-hidden shadow-inner">
+                    <canvas id="gridCanvas"></canvas>
+                </div>
+
+                <!-- Legenda rapida sotto la griglia -->
+                <div class="flex flex-wrap justify-center gap-4 mt-3 text-xs sm:text-sm font-bold text-slate-600">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-indigo-500 inline-block border-2 border-white shadow"></span>
+                        <span>Figura di partenza</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-emerald-500 inline-block border-2 border-white shadow"></span>
+                        <span>La tua figura</span>
+                    </div>
+                    <div id="legend-extra" class="flex items-center gap-1.5">
+                        <!-- Popolato dinamicamente (Asse, Vettore o Centro) -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonna Destra: Istruzioni, Aiuti e Controlli -->
+            <div class="lg:col-span-5 flex flex-col gap-4">
+                
+                <!-- Box Consegna dell'Esercizio -->
+                <div class="bg-white rounded-3xl shadow-lg p-5 sm:p-6 border-4 border-amber-200">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span id="task-icon" class="text-3xl bg-amber-100 p-2 rounded-2xl">🦋</span>
+                        <h2 id="task-title" class="text-2xl font-bold text-slate-800">Consegna</h2>
+                    </div>
+                    
+                    <p id="task-instruction" class="text-slate-700 text-base sm:text-lg leading-relaxed mb-4">
+                        Osserva la figura blu. Disegna la sua immagine simmetrica rispetto alla linea rossa tratteggiata!
+                    </p>
+
+                    <!-- Box Informazione specifica (es. Vettore o Angolo di rotazione) -->
+                    <div id="task-specs" class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3.5 mb-4 font-bold text-sky-900 text-center text-base sm:text-lg">
+                        <!-- Es: Sposta di 4 quadretti a DESTRA e 2 in BASSO -->
+                    </div>
+
+                    <!-- Suggerimento didattico attivabile -->
+                    <div class="border-t border-slate-100 pt-3">
+                        <button onclick="toggleHint()" class="text-amber-600 hover:text-amber-700 font-bold text-sm flex items-center gap-1.5">
+                            <span>💡</span> Hai bisogno di un suggerimento? Clicca qui
+                        </button>
+                        <p id="hint-text" class="hidden mt-2 text-sm bg-amber-50 text-amber-900 p-3 rounded-xl border border-amber-200">
+                            Suggerimento qui...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Box Controlli Rapidi (Utili per traslare/ruotare o cancellare) -->
+                <div class="bg-white rounded-3xl shadow-lg p-5 border-4 border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Strumenti e Azioni</h3>
+                    
+                    <!-- Controlli speciali per Traslazione / Rotazione (opzionali per aiutare i bambini) -->
+                    <div id="helper-controls" class="mb-4 hidden">
+                        <!-- Generati via JS in base al tipo di esercizio -->
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <button onclick="undoLastPoint()" class="btn-game bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+                            <span>↩️</span> Annulla punto
+                        </button>
+                        <button onclick="clearUserPoints()" class="btn-game bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+                            <span>🗑️</span> Ricomincia
+                        </button>
+                    </div>
+
+                    <button id="check-btn" onclick="checkAnswer()" class="btn-game w-full bg-emerald-500 hover:bg-emerald-600 text-white font-title text-xl font-bold py-4 px-6 rounded-2xl shadow-md flex items-center justify-center gap-2">
+                        <span>✅</span> Controlla la risposta!
+                    </button>
+                </div>
+
+                <!-- Messaggio di Feedback (nascosto finché non si controlla) -->
+                <div id="feedback-box" class="hidden rounded-3xl p-5 border-4 shadow-lg animate-pop">
+                    <div class="flex items-start gap-3">
+                        <span id="feedback-emoji" class="text-4xl">🎉</span>
+                        <div class="flex-grow">
+                            <h4 id="feedback-title" class="text-xl font-bold mb-1">Ottimo lavoro!</h4>
+                            <p id="feedback-message" class="text-sm sm:text-base mb-4">Hai posizionato tutti i vertici correttamente.</p>
+                            <button id="next-level-btn" onclick="nextLevel()" class="btn-game bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 px-6 rounded-xl">
+                                Prossima Sfida ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SCHERMATA 3: DIPLOMA FINALE -->
+        <section id="victory-screen" class="hidden max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 border-4 border-amber-300 text-center animate-pop">
+            <div class="text-6xl mb-4">🏆🎓🌟</div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-amber-600 mb-2">Missione Compiuta!</h2>
+            <p class="text-slate-600 text-lg mb-6">
+                Sei diventato un vero Maestro delle Isometrie! Hai dimostrato di saper gestire simmetrie, traslazioni e rotazioni come un vero geometra.
+            </p>
+            
+            <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-6">
+                <span class="text-sm font-bold text-amber-800 uppercase block">Punteggio Finale Totalizzato</span>
+                <span id="final-score" class="font-title text-5xl font-bold text-amber-500">900</span>
+                <span class="text-amber-700 font-bold block mt-1">punti stella!</span>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="returnToMenu()" class="btn-game bg-sky-500 hover:bg-sky-600 text-white font-title text-lg font-bold py-3 px-8 rounded-2xl">
+                    🔄 Gioca ancora
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-3 text-xs sm:text-sm text-slate-600/80 font-semibold">
+        Strumento didattico interattivo per la Scuola Primaria • Ottimizzato per Chromebook e LIM
+    </footer>
+
+    <!-- LOGICA DEL GIOCO IN JAVASCRIPT -->
+    <script>
+        /**
+         * CONFIGURAZIONE E STATO DEL GIOCO
+         */
+        const GRID_SIZE = 12; // Griglia 12x12 quadretti (coordinate da 0 a 12)
+        let canvas, ctx;
+        let cellSize = 40;
+        let padding = 25;
+
+        // Stato corrente
+        let currentMode = 'all'; // 'simmetria', 'traslazione', 'rotazione', 'all'
+        let levelsQueue = [];
+        let currentLevelIndex = 0;
+        let score = 0;
+        let userPoints = []; // Vertici selezionati dall'alunno [{x, y}, ...]
+        let hoveredNode = null; // Nodo sotto il cursore/dito
+        let isLevelSolved = false;
+        let showSolutionOverlay = false;
+
+        // Inizializzazione audio sintetizzato con Tone.js
+        let synth = null;
+        function initAudio() {
+            if (!synth && typeof Tone !== 'undefined') {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -8;
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!synth) return;
+                if (Tone.context.state !== 'running') Tone.start();
+
+                if (type === 'click') {
+                    synth.triggerAttackRelease("C5", "32n");
+                } else if (type === 'remove') {
+                    synth.triggerAttackRelease("A4", "32n");
+                } else if (type === 'win') {
+                    const now = Tone.now();
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.3);
+                } else if (type === 'error') {
+                    synth.triggerAttackRelease(["E3", "F3"], "8n");
+                }
+            } catch (e) {
+                // Ignora errori audio se bloccati dal browser
+            }
+        }
+
+        /**
+         * DATABASE DEI LIVELLI DIDATTICI (Adatti alla Classe 5ª Primaria)
+         */
+        const ALL_LEVELS = [
+            // --- SIMMETRIA ASSIALE ---
+            {
+                id: 'sim-1',
+                type: 'simmetria',
+                title: 'Lo Specchio Verticale',
+                icon: '🦋',
+                instruction: 'Completa il disegno riflettendo il triangolo a destra della linea rossa (asse di simmetria).',
+                specs: 'Asse di simmetria VERTICALE (linea rossa)',
+                hint: 'Conta quanti quadretti dista ogni vertice blu dalla linea rossa, poi conta gli stessi quadretti verso destra!',
+                original: [{x: 2, y: 3}, {x: 5, y: 3}, {x: 4, y: 7}],
+                axis: { orientation: 'vertical', value: 6 },
+                target: [{x: 10, y: 3}, {x: 7, y: 3}, {x: 8, y: 7}]
+            },
+            {
+                id: 'sim-2',
+                type: 'simmetria',
+                title: 'Riflesso sull\'Acqua',
+                icon: '⛵',
+                instruction: 'Immagina che la linea rossa sia la superficie di un lago. Disegna il riflesso della barchetta sotto la linea!',
+                specs: 'Asse di simmetria ORIZZONTALE (linea rossa)',
+                hint: 'Osserva la distanza verticale (in alto) di ogni punto dalla linea rossa e riportala in basso.',
+                original: [{x: 3, y: 2}, {x: 9, y: 2}, {x: 7, y: 5}, {x: 4, y: 5}],
+                axis: { orientation: 'horizontal', value: 6 },
+                target: [{x: 3, y: 10}, {x: 9, y: 10}, {x: 7, y: 7}, {x: 4, y: 7}]
+            },
+            {
+                id: 'sim-3',
+                type: 'simmetria',
+                title: 'La Bandiera Simmetrica',
+                icon: '🚩',
+                instruction: 'Rifletti questa figura a forma di bandierina rispetto all\'asse verticale.',
+                specs: 'Asse VERTICALE (x = 6) • Attenzione alle rientranze!',
+                hint: 'I punti che toccano l\'asse di simmetria restano fermi nello stesso posto!',
+                original: [{x: 6, y: 2}, {x: 2, y: 4}, {x: 4, y: 6}, {x: 2, y: 8}, {x: 6, y: 10}],
+                axis: { orientation: 'vertical', value: 6 },
+                target: [{x: 6, y: 2}, {x: 10, y: 4}, {x: 8, y: 6}, {x: 10, y: 8}, {x: 6, y: 10}]
+            },
+
+            // --- TRASLAZIONE ---
+            {
+                id: 'tra-1',
+                type: 'traslazione',
+                title: 'Scivolata a Destra',
+                icon: '🚀',
+                instruction: 'Sposta il rettangolo seguendo esattamente la freccia arancione (vettore di traslazione).',
+                specs: 'Vettore: 5 quadretti a DESTRA ➡️',
+                hint: 'Prendi ogni vertice del rettangolo blu e spostalo di 5 quadretti verso destra. La forma non gira!',
+                original: [{x: 1, y: 4}, {x: 4, y: 4}, {x: 4, y: 8}, {x: 1, y: 8}],
+                vector: { dx: 5, dy: 0 },
+                target: [{x: 6, y: 4}, {x: 9, y: 4}, {x: 9, y: 8}, {x: 6, y: 8}]
+            },
+            {
+                id: 'tra-2',
+                type: 'traslazione',
+                title: 'Viaggio in Diagonale',
+                icon: '🛸',
+                instruction: 'Trasla il triangolo spostandolo sia in orizzontale che in verticale come indica il vettore.',
+                specs: 'Vettore: 4 a DESTRA ➡️ e 3 in BASSO ⬇️',
+                hint: 'Parti da un vertice blu: conta 4 quadretti a destra e poi scendi di 3 quadretti. Segna il punto!',
+                original: [{x: 2, y: 2}, {x: 6, y: 2}, {x: 3, y: 5}],
+                vector: { dx: 4, dy: 3 },
+                target: [{x: 6, y: 5}, {x: 10, y: 5}, {x: 7, y: 8}]
+            },
+            {
+                id: 'tra-3',
+                type: 'traslazione',
+                title: 'Ritorno alla Base',
+                icon: '🚁',
+                instruction: 'Sposta la figura verso sinistra e verso l\'alto seguendo il vettore arancione.',
+                specs: 'Vettore: 5 a SINISTRA ⬅️ e 4 in ALTO ⬆️',
+                hint: 'Controlla bene il verso della freccia arancione: questa volta si sale e si va a sinistra!',
+                original: [{x: 7, y: 7}, {x: 10, y: 7}, {x: 11, y: 10}, {x: 8, y: 10}],
+                vector: { dx: -5, dy: -4 },
+                target: [{x: 2, y: 3}, {x: 5, y: 3}, {x: 6, y: 6}, {x: 3, y: 6}]
+            },
+
+            // --- ROTAZIONE ---
+            {
+                id: 'rot-1',
+                type: 'rotazione',
+                title: 'Un Quarto di Giro',
+                icon: '🎡',
+                instruction: 'Ruota il segmento/bandierina intorno al perno rosso di 90° in senso ORARIO (come le lancette dell\'orologio).',
+                specs: 'Rotazione di 90° in senso ORARIO ↻ intorno al punto rosso',
+                hint: 'Immagina di fissare una puntina sul punto rosso e girare il foglio di un quarto di giro verso destra!',
+                original: [{x: 6, y: 6}, {x: 6, y: 2}, {x: 8, y: 3}],
+                center: { x: 6, y: 6 },
+                angle: 90, // positivo = orario
+                target: [{x: 6, y: 6}, {x: 10, y: 6}, {x: 9, y: 8}]
+            },
+            {
+                id: 'rot-2',
+                type: 'rotazione',
+                title: 'Giro Antiorario',
+                icon: '🧭',
+                instruction: 'Ruota la figura di 90° in senso ANTIORARIO (contrario all\'orologio) attorno al centro rosso.',
+                specs: 'Rotazione di 90° in senso ANTIORARIO ↺ intorno al punto rosso',
+                hint: 'Il punto sul perno rosso non si muove! Il lato orizzontale che va a destra diventerà verticale verso l\'alto.',
+                original: [{x: 6, y: 6}, {x: 10, y: 6}, {x: 10, y: 8}, {x: 6, y: 8}],
+                center: { x: 6, y: 6 },
+                angle: -90, // negativo = antiorario
+                target: [{x: 6, y: 6}, {x: 6, y: 2}, {x: 8, y: 2}, {x: 8, y: 6}]
+            },
+            {
+                id: 'rot-3',
+                type: 'rotazione',
+                title: 'Mezzo Giro Completo!',
+                icon: '⏳',
+                instruction: 'Fai fare al triangolo una rotazione di 180° (mezzo giro) attorno al centro rosso.',
+                specs: 'Rotazione di 180° (Mezzo giro) 🔄 intorno al punto rosso',
+                hint: 'Con una rotazione di 180°, ogni punto va esattamente dalla parte opposta rispetto al centro rosso!',
+                original: [{x: 4, y: 3}, {x: 6, y: 3}, {x: 6, y: 5}],
+                center: { x: 6, y: 6 },
+                angle: 180,
+                target: [{x: 8, y: 9}, {x: 6, y: 9}, {x: 6, y: 7}]
+            }
+        ];
+
+        /**
+         * INIZIALIZZAZIONE AL CARICAMENTO DELLA PAGINA
+         */
+        window.onload = function() {
+            canvas = document.getElementById('gridCanvas');
+            if (canvas) {
+                ctx = canvas.getContext('2d');
+            }
+
+            // Gestione ridimensionamento responsivo tramite ResizeObserver + evento window resize
+            window.addEventListener('resize', resizeCanvas);
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (wrapper && typeof ResizeObserver !== 'undefined') {
+                const ro = new ResizeObserver(() => resizeCanvas());
+                ro.observe(wrapper);
+            }
+
+            // Eventi Mouse e Touch unificati per Chromebook / Tablet / LIM
+            if (canvas) {
+                canvas.addEventListener('mousemove', handlePointerMove);
+                canvas.addEventListener('mousedown', handlePointerDown);
+                canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                canvas.addEventListener('mouseleave', () => {
+                    hoveredNode = null;
+                    draw();
+                });
+            }
+        };
+
+        /**
+         * AVVIO DI UNA MISSIONE
+         */
+        function startMission(mode) {
+            playSound('click');
+            currentMode = mode;
+            score = 0;
+            currentLevelIndex = 0;
+
+            if (mode === 'all') {
+                levelsQueue = [...ALL_LEVELS];
+            } else {
+                levelsQueue = ALL_LEVELS.filter(lvl => lvl.type === mode);
+            }
+
+            // Cambio schermata
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('hud-panel').classList.remove('hidden');
+
+            updateHUD();
+            loadLevel(0);
+            // Attendiamo un frame per garantire che il contenitore sia visibile e abbia dimensioni reali
+            requestAnimationFrame(() => {
+                resizeCanvas();
+            });
+        }
+
+        function resizeCanvas() {
+            if (!canvas) {
+                canvas = document.getElementById('gridCanvas');
+                if (canvas) ctx = canvas.getContext('2d');
+            }
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!wrapper || !canvas || !ctx) return;
+
+            // Usa clientWidth per adattarsi esattamente allo spazio interno disponibile (esclusi i bordi)
+            const size = wrapper.clientWidth || wrapper.getBoundingClientRect().width;
+            if (!size || size <= 0) return;
+            
+            // Supporto schermi Retina / High-DPI dei Chromebook
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.round(size * dpr);
+            canvas.height = Math.round(size * dpr);
+            
+            // Resetta eventuali trasformazioni precedenti prima di applicare la nuova scala
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+
+            padding = Math.max(22, size * 0.065);
+            cellSize = (size - padding * 2) / GRID_SIZE;
+
+            draw();
+        }
+
+        /**
+         * GESTIONE NAVIGAZIONE E INTERFACCIA
+         */
+        function returnToMenu() {
+            playSound('click');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('hud-panel').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+        }
+
+        function updateHUD() {
+            document.getElementById('score-display').textContent = score;
+            document.getElementById('level-display').textContent = `${currentLevelIndex + 1} / ${levelsQueue.length}`;
+        }
+
+        function toggleHint() {
+            playSound('click');
+            const hintEl = document.getElementById('hint-text');
+            hintEl.classList.toggle('hidden');
+        }
+
+        /**
+         * CARICAMENTO DI UN SINGOLO LIVELLO
+         */
+        function loadLevel(index) {
+            const level = levelsQueue[index];
+            userPoints = [];
+            hoveredNode = null;
+            isLevelSolved = false;
+            showSolutionOverlay = false;
+
+            updateHUD();
+
+            // Aggiorna badge missione e colori
+            const badge = document.getElementById('mission-badge');
+            const legendExtra = document.getElementById('legend-extra');
+            const helperControls = document.getElementById('helper-controls');
+
+            if (level.type === 'simmetria') {
+                badge.textContent = '🦋 Missione Simmetria';
+                badge.className = 'px-3 py-1 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider bg-pink-100 text-pink-700';
+                legendExtra.innerHTML = `<span class="w-4 h-1 bg-rose-500 inline-block"></span><span>Asse di simmetria</span>`;
+                helperControls.classList.add('hidden');
+            } else if (level.type === 'traslazione') {
+                badge.textContent = '🚀 Missione Traslazione';
+                badge.className = 'px-3 py-1 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider bg-sky-100 text-sky-700';
+                legendExtra.innerHTML = `<span class="text-orange-500 font-extrabold">➔</span><span>Vettore spostamento</span>`;
+                helperControls.classList.remove('hidden');
+                helperControls.innerHTML = `
+                    <button onclick="autoPreviewHelper()" class="w-full bg-sky-50 hover:bg-sky-100 border-2 border-sky-200 text-sky-800 font-bold py-2 px-3 rounded-xl text-sm flex items-center justify-center gap-2 transition">
+                        <span>👁️</span> Mostra/Nascondi guide dei vertici
+                    </button>
+                `;
+            } else if (level.type === 'rotazione') {
+                badge.textContent = '🎡 Missione Rotazione';
+                badge.className = 'px-3 py-1 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider bg-amber-100 text-amber-700';
+                legendExtra.innerHTML = `<span class="w-3.5 h-3.5 rounded-full bg-rose-600 inline-block border-2 border-white shadow"></span><span>Centro di rotazione</span>`;
+                helperControls.classList.remove('hidden');
+                helperControls.innerHTML = `
+                    <button onclick="autoPreviewHelper()" class="w-full bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 text-amber-800 font-bold py-2 px-3 rounded-xl text-sm flex items-center justify-center gap-2 transition">
+                        <span>👁️</span> Mostra/Nascondi raggi dal centro
+                    </button>
+                `;
+            }
+
+            // Testi didattici
+            document.getElementById('task-icon').textContent = level.icon;
+            document.getElementById('task-title').textContent = level.title;
+            document.getElementById('task-instruction').textContent = level.instruction;
+            document.getElementById('task-specs').textContent = level.specs;
+            document.getElementById('hint-text').textContent = level.hint;
+            document.getElementById('hint-text').classList.add('hidden');
+
+            // Reset feedback e pulsanti
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('check-btn').disabled = false;
+
+            draw();
+        }
+
+        function autoPreviewHelper() {
+            playSound('click');
+            showSolutionOverlay = !showSolutionOverlay;
+            draw();
+        }
+
+        /**
+         * CONVERSIONE COORDINATE GRIGLIA <-> PIXEL
+         */
+        function gridToPixel(gx, gy) {
+            return {
+                px: padding + gx * cellSize,
+                py: padding + gy * cellSize
+            };
+        }
+
+        function pixelToNearestNode(px, py) {
+            const gx = Math.round((px - padding) / cellSize);
+            const gy = Math.round((py - padding) / cellSize);
+
+            if (gx < 0 || gx > GRID_SIZE || gy < 0 || gy > GRID_SIZE) return null;
+
+            const nodePx = gridToPixel(gx, gy);
+            const dist = Math.hypot(px - nodePx.px, py - nodePx.py);
+
+            // Raggio generoso per facilitare il tocco su Chromebook/Touch
+            if (dist <= cellSize * 0.55) {
+                return { x: gx, y: gy };
+            }
+            return null;
+        }
+
+        /**
+         * GESTIONE INPUT UTENTE (MOUSE E TOUCH)
+         */
+        function getCanvasCoords(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handlePointerMove(e) {
+            if (isLevelSolved) return;
+            const pos = getCanvasCoords(e.clientX, e.clientY);
+            const node = pixelToNearestNode(pos.x, pos.y);
+            
+            if ((node && !hoveredNode) || (!node && hoveredNode) || (node && hoveredNode && (node.x !== hoveredNode.x || node.y !== hoveredNode.y))) {
+                hoveredNode = node;
+                draw();
+            }
+        }
+
+        function handlePointerDown(e) {
+            if (e.button !== 0 || isLevelSolved) return;
+            const pos = getCanvasCoords(e.clientX, e.clientY);
+            toggleNodeAt(pos.x, pos.y);
+        }
+
+        function handleTouchStart(e) {
+            if (isLevelSolved) return;
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                const pos = getCanvasCoords(touch.clientX, touch.clientY);
+                hoveredNode = pixelToNearestNode(pos.x, pos.y);
+                toggleNodeAt(pos.x, pos.y);
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (isLevelSolved) return;
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                const pos = getCanvasCoords(touch.clientX, touch.clientY);
+                hoveredNode = pixelToNearestNode(pos.x, pos.y);
+                draw();
+            }
+        }
+
+        function toggleNodeAt(px, py) {
+            const node = pixelToNearestNode(px, py);
+            if (!node) return;
+
+            const level = levelsQueue[currentLevelIndex];
+            const existingIndex = userPoints.findIndex(p => p.x === node.x && p.y === node.y);
+
+            if (existingIndex !== -1) {
+                // Se il punto è già stato messo, lo rimuove
+                userPoints.splice(existingIndex, 1);
+                playSound('remove');
+            } else {
+                // Aggiunge il punto se non ha superato il numero massimo di vertici
+                if (userPoints.length >= level.target.length) {
+                    // Sostituisce l'ultimo punto inserito per comodità
+                    userPoints.pop();
+                }
+                userPoints.push({ x: node.x, y: node.y });
+                playSound('click');
+            }
+
+            // Nasconde eventuali messaggi di errore precedenti quando l'alunno modifica il disegno
+            document.getElementById('feedback-box').classList.add('hidden');
+            draw();
+        }
+
+        function undoLastPoint() {
+            if (isLevelSolved || userPoints.length === 0) return;
+            userPoints.pop();
+            playSound('remove');
+            document.getElementById('feedback-box').classList.add('hidden');
+            draw();
+        }
+
+        function clearUserPoints() {
+            if (isLevelSolved) return;
+            userPoints = [];
+            playSound('remove');
+            document.getElementById('feedback-box').classList.add('hidden');
+            draw();
+        }
+
+        /**
+         * MOTORE DI DISEGNO DELLA GRIGLIA E DELLE FIGURE
+         */
+        function draw() {
+            if (!ctx || levelsQueue.length === 0) return;
+            const level = levelsQueue[currentLevelIndex];
+            const totalSize = padding * 2 + cellSize * GRID_SIZE;
+
+            ctx.clearRect(0, 0, totalSize, totalSize);
+
+            // 1. Disegna i quadretti della griglia
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                const pos = padding + i * cellSize;
+                
+                // Linee verticali
+                ctx.beginPath();
+                ctx.moveTo(pos, padding);
+                ctx.lineTo(pos, padding + GRID_SIZE * cellSize);
+                ctx.strokeStyle = (i === 0 || i === GRID_SIZE) ? '#94a3b8' : '#cbd5e1';
+                ctx.stroke();
+
+                // Linee orizzontali
+                ctx.beginPath();
+                ctx.moveTo(padding, pos);
+                ctx.lineTo(padding + GRID_SIZE * cellSize, pos);
+                ctx.strokeStyle = (i === 0 || i === GRID_SIZE) ? '#94a3b8' : '#cbd5e1';
+                ctx.stroke();
+
+                // Numerini sugli assi per aiutare i bambini a contare
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = 'bold 11px Nunito, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(i, pos, padding - 8);
+                ctx.textAlign = 'right';
+                ctx.fillText(i, padding - 8, pos + 4);
+            }
+
+            // Piccoli pallini sugli incroci per rendere evidenti i nodi cliccabili
+            ctx.fillStyle = '#cbd5e1';
+            for (let x = 0; x <= GRID_SIZE; x++) {
+                for (let y = 0; y <= GRID_SIZE; y++) {
+                    const { px, py } = gridToPixel(x, y);
+                    ctx.beginPath();
+                    ctx.arc(px, py, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 2. Guide visive opzionali (se attivate dal bambino)
+            if (showSolutionOverlay) {
+                ctx.save();
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = 'rgba(14, 165, 233, 0.45)';
+                ctx.lineWidth = 2;
+
+                if (level.type === 'traslazione') {
+                    level.original.forEach(pt => {
+                        const start = gridToPixel(pt.x, pt.y);
+                        const end = gridToPixel(pt.x + level.vector.dx, pt.y + level.vector.dy);
+                        ctx.beginPath();
+                        ctx.moveTo(start.px, start.py);
+                        ctx.lineTo(end.px, end.py);
+                        ctx.stroke();
+                    });
+                } else if (level.type === 'rotazione') {
+                    const c = gridToPixel(level.center.x, level.center.y);
+                    level.original.forEach(pt => {
+                        const p = gridToPixel(pt.x, pt.y);
+                        ctx.beginPath();
+                        ctx.moveTo(c.px, c.py);
+                        ctx.lineTo(p.px, p.py);
+                        ctx.stroke();
+                    });
+                }
+                ctx.restore();
+            }
+
+            // 3. Disegna la figura originale (Indaco/Blu)
+            drawPolygon(level.original, 'rgba(99, 102, 241, 0.25)', '#4f46e5', '#4f46e5', true);
+
+            // 4. Disegna gli elementi specifici dell'isometria (Asse, Vettore o Centro)
+            if (level.type === 'simmetria') {
+                drawSymmetryAxis(level.axis);
+            } else if (level.type === 'traslazione') {
+                drawTranslationVector(level.original[0], level.vector);
+            } else if (level.type === 'rotazione') {
+                drawRotationCenter(level.center, level.angle);
+            }
+
+            // 5. Disegna la figura costruita dall'alunno (Verde Smeraldo)
+            if (userPoints.length > 0) {
+                const closeShape = userPoints.length === level.target.length;
+                drawPolygon(userPoints, 'rgba(16, 185, 129, 0.3)', '#059669', '#10b981', closeShape);
+            }
+
+            // 6. Evidenzia il nodo sotto il cursore/dito
+            if (hoveredNode && !isLevelSolved) {
+                const { px, py } = gridToPixel(hoveredNode.x, hoveredNode.y);
+                ctx.beginPath();
+                ctx.arc(px, py, 10, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#059669';
+                ctx.stroke();
+            }
+        }
+
+        function drawPolygon(points, fillColor, strokeColor, vertexColor, closePath) {
+            if (points.length === 0) return;
+
+            ctx.save();
+            ctx.beginPath();
+            const first = gridToPixel(points[0].x, points[0].y);
+            ctx.moveTo(first.px, first.py);
+
+            for (let i = 1; i < points.length; i++) {
+                const pt = gridToPixel(points[i].x, points[i].y);
+                ctx.lineTo(pt.px, pt.py);
+            }
+
+            if (closePath && points.length >= 3) {
+                ctx.closePath();
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+            }
+
+            ctx.lineWidth = 3.5;
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = strokeColor;
+            ctx.stroke();
+
+            // Disegna i vertici come pallini ben visibili
+            points.forEach(pt => {
+                const { px, py } = gridToPixel(pt.x, pt.y);
+                ctx.beginPath();
+                ctx.arc(px, py, 6.5, 0, Math.PI * 2);
+                ctx.fillStyle = vertexColor;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        function drawSymmetryAxis(axis) {
+            ctx.save();
+            ctx.strokeStyle = '#f43f5e'; // Rosso/Rosa acceso
+            ctx.lineWidth = 4;
+            ctx.setLineDash([8, 6]);
+            ctx.beginPath();
+
+            if (axis.orientation === 'vertical') {
+                const { px } = gridToPixel(axis.value, 0);
+                ctx.moveTo(px, padding - 10);
+                ctx.lineTo(px, padding + GRID_SIZE * cellSize + 10);
+            } else {
+                const { py } = gridToPixel(0, axis.value);
+                ctx.moveTo(padding - 10, py);
+                ctx.lineTo(padding + GRID_SIZE * cellSize + 10, py);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawTranslationVector(startNode, vector) {
+            const start = gridToPixel(startNode.x, startNode.y);
+            const end = gridToPixel(startNode.x + vector.dx, startNode.y + vector.dy);
+
+            ctx.save();
+            ctx.strokeStyle = '#f97316'; // Arancione brillante
+            ctx.fillStyle = '#f97316';
+            ctx.lineWidth = 3.5;
+            ctx.setLineDash([5, 4]);
+
+            // Linea del vettore
+            ctx.beginPath();
+            ctx.moveTo(start.px, start.py);
+            ctx.lineTo(end.px, end.py);
+            ctx.stroke();
+
+            // Punta della freccia
+            ctx.setLineDash([]);
+            const angle = Math.atan2(end.py - start.py, end.px - start.px);
+            const headLen = 13;
+            ctx.beginPath();
+            ctx.moveTo(end.px, end.py);
+            ctx.lineTo(end.px - headLen * Math.cos(angle - Math.PI / 6), end.py - headLen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(end.px - headLen * Math.cos(angle + Math.PI / 6), end.py - headLen * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawRotationCenter(center, angle) {
+            const { px, py } = gridToPixel(center.x, center.y);
+            
+            ctx.save();
+            // Cerchio tratteggiato attorno al centro
+            ctx.beginPath();
+            ctx.arc(px, py, cellSize * 0.65, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(225, 29, 72, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+
+            // Perno centrale rosso
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(px, py, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#e11d48';
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            // Etichetta "O" (Centro)
+            ctx.fillStyle = '#be123c';
+            ctx.font = 'bold 13px Nunito, sans-serif';
+            ctx.fillText('O', px - 13, py - 11);
+            ctx.restore();
+        }
+
+        /**
+         * VERIFICA DELLA RISPOSTA DELL'ALUNNO
+         */
+        function checkAnswer() {
+            if (isLevelSolved) return;
+            const level = levelsQueue[currentLevelIndex];
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackEmoji = document.getElementById('feedback-emoji');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const nextBtn = document.getElementById('next-level-btn');
+
+            // 1. Controlla se il numero di vertici corrisponde
+            if (userPoints.length !== level.target.length) {
+                playSound('error');
+                feedbackBox.className = 'rounded-3xl p-5 border-4 shadow-lg animate-pop bg-amber-50 border-amber-300 text-amber-900';
+                feedbackEmoji.textContent = '🤔';
+                feedbackTitle.textContent = 'Manca ancora qualche vertice!';
+                feedbackMessage.textContent = `La figura originale ha ${level.target.length} vertici, mentre tu ne hai segnati ${userPoints.length}. Tocca la griglia per aggiungere i punti mancanti!`;
+                nextBtn.classList.add('hidden');
+                feedbackBox.classList.remove('hidden');
+                return;
+            }
+
+            // 2. Controlla che ogni punto del target sia presente nei punti dell'utente (indipendentemente dall'ordine in cui li ha cliccati!)
+            const allMatch = level.target.every(targetPt =>
+                userPoints.some(userPt => userPt.x === targetPt.x && userPt.y === targetPt.y)
+            );
+
+            if (allMatch) {
+                // RISPOSTA ESATTA!
+                isLevelSolved = true;
+                showSolutionOverlay = false;
+                score += 100;
+                updateHUD();
+                playSound('win');
+
+                feedbackBox.className = 'rounded-3xl p-5 border-4 shadow-lg animate-pop bg-emerald-50 border-emerald-400 text-emerald-900';
+                feedbackEmoji.textContent = '🎉';
+                feedbackTitle.textContent = 'Bravissimo! Risposta esatta!';
+                feedbackMessage.textContent = 'Hai applicato l\'isometria alla perfezione (+100 punti stella!).';
+                nextBtn.classList.remove('hidden');
+                nextBtn.textContent = (currentLevelIndex + 1 < levelsQueue.length) ? 'Prossima Sfida ➔' : 'Vedi il Diploma 🏆';
+                feedbackBox.classList.remove('hidden');
+                document.getElementById('check-btn').disabled = true;
+                draw();
+            } else {
+                // RISPOSTA NON ANCORA CORRETTA
+                playSound('error');
+                feedbackBox.className = 'rounded-3xl p-5 border-4 shadow-lg animate-pop bg-rose-50 border-rose-300 text-rose-900';
+                feedbackEmoji.textContent = '🧐';
+                feedbackTitle.textContent = 'Quasi! Controlla bene i quadretti';
+                feedbackMessage.textContent = 'Uno o più vertici non sono nella posizione giusta. Riconta le distanze sulla griglia e riprova!';
+                nextBtn.classList.add('hidden');
+                feedbackBox.classList.remove('hidden');
+            }
+        }
+
+        function nextLevel() {
+            playSound('click');
+            currentLevelIndex++;
+            if (currentLevelIndex < levelsQueue.length) {
+                loadLevel(currentLevelIndex);
+            } else {
+                // Fine missione!
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('hud-panel').classList.add('hidden');
+                document.getElementById('final-score').textContent = score;
+                document.getElementById('victory-screen').classList.remove('hidden');
+                playSound('win');
+            }
+        }
+    </script>
+</body>
+</html>
